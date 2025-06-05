@@ -1,4 +1,4 @@
-function [SNReq,SNR]=transmission_fibre_MGDM(navg_txn,drho,F,nModes,nPols,KuvSurf,pc,FiberParameters,nlInd,minStep,maxStep,delta_tol,fineStep,Sin,Sin_pre,P,M,DSP,NOverlap,elp,deltacore,mgscase)
+function [SNReq,SNR,StdMDL]=transmission_fibre_MGDM(navg_txn,drho,F,nModes,nPols,KuvSurf,pc,FiberParameters,nlInd,minStep,maxStep,delta_tol,fineStep,Sin,Sin_pre,P,M,DSP,NOverlap,elp,deltacore,mgscase)
 
 if nargin<22
 fileName1  = [num2str(P.OSNRdB),'_',num2str(navg_txn),'_',F.xt_metric,'_xt=',num2str(drho),'_',num2str(F.L),'_',num2str(F.dz),'_',num2str(nModes),'_',num2str(nPols),'_',num2str(M.symbolrate),num2str(F.XTavg),num2str(NOverlap)];
@@ -9,15 +9,16 @@ tag1       =  'find_snreq_afterSVD_single\';
 end   
 SNReq=[];
 
-
+%
+StdMDL=[];
 SNR = loadComputedData(tag1,['SNR_',fileName1],0);
 SNReq = loadComputedData(tag1,['SNReq_',fileName1],0);
-
+StdMDL=loadComputedData(tag1,['StdMDL_',fileName1],0);
 if isempty(SNReq)
     SNReq.nodrift=[];
 end
 if ~isempty(SNReq.nodrift)
-    return
+     return
 end
 
 
@@ -34,8 +35,14 @@ end
 [Sout] = FMF_transmission_NModes_2pol('stochastic',FiberParameters,CoupMatLPabVect_nodrift,F.L,F.dz,nlInd,minStep,maxStep,delta_tol,fineStep,nModes,nPols,Sin);
 
         Sout.E = NoiseInsertion(Sout.E,P.OSNRdB,P);
-
-
+        %% MDL Calc
+        for i=1
+        [~,EigMDL] = eig(Sout.H(:,:,i)*Sout.H(:,:,i)');
+        OverallMDL(:,:,i) = logm(EigMDL);
+        VecOverallMDL(:,i) = diag(OverallMDL(:,:,i));
+        StdMDL(i)          = std(VecOverallMDL(:,i));
+        end
+        %%
 disp_param=Sout.disp_param;
 
 if DSP.disp_comp==1
@@ -115,5 +122,5 @@ end
 
 saveComputedData(SNR,tag1,['SNR_',fileName1],0);
 saveComputedData(SNReq,tag1,['SNReq_',fileName1],0);
-
+saveComputedData(StdMDL,tag1,['StdMDL_',fileName1],0);
 end
