@@ -6,7 +6,12 @@ function [r] = NoiseInsertion(x,OSNRdB,P)
     OSNR = 10^(OSNRdB/10);
     
     % Average signal power:
+    if isfield(P,'NTrib')
+        temp = sum(abs(x).^2,1)./P.NTrib;
+    else
+        warning('Assumed data is transmitted in all tributaries, if not please enter P.NTrib')
     temp = mean(abs(x).^2,1); %mean(abs(x).^2,1);
+    end
     AvgSigPower = 2*mean(temp); %mean(temp(temp > max(temp)/3));
 
    
