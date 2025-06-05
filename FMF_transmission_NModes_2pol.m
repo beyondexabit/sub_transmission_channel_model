@@ -21,14 +21,19 @@ DMD(1:2:nModes*nPols)     = FiberParameters.ModeDelay-FiberParameters.dgd_pol/2;
 DMD(2:2:nModes*nPols)     = FiberParameters.ModeDelay+FiberParameters.dgd_pol/2;
 Disp(1:2:nModes*nPols) = FiberParameters.D; 
 S(1:2:nModes*nPols)    = FiberParameters.S;
-lossCoef(1:2:nModes*nPols)        = FiberParameters.lossCoef;
+% lossCoef(1:2:nModes*nPols)        = FiberParameters.lossCoef;
 Disp(2:2:nModes*nPols) = FiberParameters.D; 
 S(2:2:nModes*nPols)    = FiberParameters.S;
-lossCoef(2:2:nModes*nPols)        = FiberParameters.lossCoef;
+% lossCoef(2:2:nModes*nPols)        = FiberParameters.lossCoef;
 else
 DMD(1:nModes*nPols)  = FiberParameters.ModeDelay;
 Disp(1:nModes*nPols) = FiberParameters.D; 
 S(1:nModes*nPols)    = FiberParameters.S;
+end
+if nPols==2 && length(FiberParameters.lossCoef)==nModes
+    lossCoef(1:2:nModes*nPols)        = FiberParameters.lossCoef;
+lossCoef(2:2:nModes*nPols)        = FiberParameters.lossCoef;
+else
 lossCoef(1:nModes*nPols)        = FiberParameters.lossCoef;
 end
 
